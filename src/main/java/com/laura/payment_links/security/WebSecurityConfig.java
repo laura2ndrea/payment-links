@@ -34,8 +34,8 @@ class WebSecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.POST, LOGIN_URL).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/petpals/user").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/petpals/user").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/payment-links/merchant").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/payment-links/merchant").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterAfter(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
