@@ -181,8 +181,102 @@ public class PaymentAttemptResponse {
 
 ### 03. Repositorios (/repositories)
 
+Los siguientes repositorios manejan la persistencia de datos para el sistema de Payment Links, utilizando Spring Data JPA. Cada uno proporciona consultas específicas para su entidad asociada.
+
+**MerchantRepository**
+
+- Gestiona la autenticación y registro de comercios, evitando duplicados.
+
+```sh
+Optional<Merchant> findByEmail(String email);  // Busca un comercio por email
+boolean existsByEmail(String email);           // Verifica si un email ya está registrado
+```
+
+**PaymentAttemptRepository**
+
+- Garantizar idempotencia en pagos (evitar cobros duplicados).
+- Mostrar historial de transacciones en la UI.
+
+```sh
+Optional<PaymentAttempt> findByPaymentLinkIdAndIdempotencyKey(UUID paymentLinkId, String key);  
+List<PaymentAttempt> findByPaymentLinkIdOrderByCreatedAtDesc(UUID paymentLinkId);  
+```
+
+**PaymentLinkRepository**
+
+- Búsqueda filtrada de links (por estado, rango de fechas, montos, etc.).
+- Gestión de expiración automática de links vencidos.
+
+```sh
+// Búsqueda con filtros dinámicos (paginada)
+Page<PaymentLink> search(UUID merchantId, PaymentLinkStatus status, Instant fromDate, ...);
+
+// Job de expiración
+@Modifying
+int expireLinks(Instant now);  // Marca links vencidos como "EXPIRED"
+```
+
 ### 04. Servicios (/service)
 
+A continuación se detallan los servicios principales que componen el sistema de gestión de enlaces de pago:
+
+**MerchantAuthService**
+
+Maneja la autenticación y registro de comercios.
+
+- **Funcionalidades principales:**
+  - Registro de nuevos comercios:
+      - Valida que el email no esté duplicado
+      - Encripta la contraseña antes de almacenarla
+        ```sh
+        public UUID registerMerchant(MerchantRegistrationRequest request)
+        ```
+  - Autenticación:
+    - Verifica credenciales (email + contraseña)
+    - Genera tokens JWT para sesiones autenticadas
+      
+        ```sh
+        public String authenticate(String email, String password)
+        ```
+
+  - Validación de tokens:
+    - Verifica y decodifica tokens JWT
+    -  Extrae el ID del comerciante para autorización
+     
+      ```sh
+      public UUID validateTokenAndGetMerchantId(String token)
+      ```
+
+**PaymentLinkService**
+
+Gestiona el ciclo de vida completo de los enlaces de pago.
+
+- **Funcionalidades principales:**
+  
+  - Creación de enlaces:
+    ```sh
+    public PaymentLinkResponse createPaymentLink(UUID merchantId, CreatePaymentLinkRequest request)
+    ```
+  - Búsqueda con filtros:
+      ```sh
+      public Page<PaymentLinkResponse> getPaymentLinks(UUID merchantId, PaymentLinkFilter filter, Pageable pageable)
+      ```
+  - Cancelación:
+    ```sh
+    public PaymentLinkResponse cancelPaymentLink(UUID merchantId, UUID paymentLinkId)
+    ```
+  - Procesamiento de intentos:
+    ```sh
+    public PaymentAttemptResponse payPaymentLink(...)
+    ```
+  - Job de expiración:
+    ```sh
+    public int expirePaymentLinks()
+    ```
+  - Detalles de enlace:
+    ```sh
+    public PaymentLinkDetailsResponse getPaymentLinkDetails(UUID merchantId, String identifier)
+    ```
 ### 05. Controladores (/controller)
 
 ### 06. Manejo de errores (/exception)
