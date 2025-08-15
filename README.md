@@ -303,5 +303,50 @@ Gestiona el ciclo de vida completo de los enlaces de pago.
 
 ### 6. Manejo de errores (/exception)
 
-### 7. Seguridad (/security)
+- Se centralizo el manejo de errores para toda la API
+
+- Se devuelven respuestas estandarizadas en formato ApiError
+  
+```sh
+  {
+  "type": "URL de referencia",
+  "title": "Título genérico",
+  "status": 409,
+  "detail": "Descripción específica",
+  "code": "CÓDIGO_INTERNO"
+}
+  ```
+
+- Tipos de errores manejados:
+  
+  - Errores de autenticación (401):
+
+    - AuthException: credenciales inválidas o token corrupto
+
+- Errores de validación (422):
+
+  - MethodArgumentNotValidException: campos inválidos (con detalles por campo)
+
+- Errores de negocio:
+
+  - 404 Not Found:
+
+    - PaymentLinkNotFoundException
+  
+    - MerchantNotFoundException
+
+- 409 Conflict:
+
+  - InvalidPaymentLinkStateException
+
+  - DuplicatePaymentAttemptException
+
+  - PaymentLinkExpiredException
+
+  - EmailAlreadyExistsException
+
+- Error genérico (500):
+
+  - Cualquier excepción no mapeada
+
 
