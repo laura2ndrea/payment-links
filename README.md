@@ -115,6 +115,69 @@ public class PaymentAttempt {
   - No puede haber dos intentos con el mismo payment_link_id + idempotency_key
 
 ### 02. DTOs (/dto) 
+Se crearon DTO de entrada y salida para proteger la estructura interna de las entidades, controlar qué datos se exponen en la API, validar las solicitudes entrantes, optimizar las respuestas según cada caso de uso.
+
+Los DTO de entrada son los siguientes: 
+
+**CreatePaymentLinkRequest**: para la creación de nuevos enlaces 
+```sh
+public class CreatePaymentLinkRequest {
+    @Min(1)
+    private Integer amountCents;     // Monto mínimo: 1 centavo
+    
+    @NotBlank
+    @Size(min = 3, max = 3)
+    private String currency;         // Formato ISO (3 caracteres)
+    
+    @NotBlank
+    @Size(max = 255)
+    private String description;      // Máximo 255 caracteres
+    
+    @Min(1)
+    private Integer expiresInMinutes; // Mínimo 1 minuto
+    
+    private Map<String, Object> metadata; // Datos adicionales
+}
+```
+**PayPaymentLinkRequest**: simulación de pagos 
+```sh
+public class PayPaymentLinkRequest {
+    @NotBlank
+    private String paymentToken; // Formato: "ok_" (éxito) o "fail_" (fallo)
+}
+```
+Y los de salida: 
+**PaymentLinkResponse (versión básica)**: campos esenciales para listados o respuestas simples
+```sh
+public class PaymentLinkResponse {
+    private UUID id;
+    private String reference;     // Ej: "PL-2023-0001"
+    private Integer amountCents;
+    private String currency;
+    private PaymentLinkStatus status;
+    private Instant expiresAt;
+}
+```
+**PaymentLinkDetailsResponse (versión detallada)**: extiende la versión básica, incluye metadatos y fechas adicionales, muestra relación con merchant sin exponer datos sensibles
+```sh
+public class PaymentLinkDetailsResponse extends PaymentLinkResponse {
+    private String description;
+    private Instant paidAt;       // Null si no ha sido pagado
+    private Instant createdAt;
+    private Map<String, Object> metadata;
+    private UUID merchantId;      // Solo el ID, no el objeto completo
+}
+```
+**PaymentAttemptResponse**: dar respuestas de los endpoints de procesamiento de pagos
+```sh
+public class PaymentAttemptResponse {
+    private UUID id;
+    private String status;       // "SUCCESS" o "FAILED"
+    private String reason;       // Null si fue exitoso
+    private Instant createdAt;
+    private UUID paymentLinkId;  // Referencia al enlace
+}
+```
 
 ### 03. Repositorios (/repositories)
 
