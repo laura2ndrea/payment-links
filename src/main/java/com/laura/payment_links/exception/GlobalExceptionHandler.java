@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
     // Errores de validación
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String[]> errors = ex.getBindingResult()
+        Map<String, Object> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .collect(Collectors.groupingBy(
@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
                 "Not Found",
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
-                "NOT_FOUND"
+                "PAYMENT_LINK_NOT_FOUND"
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -90,6 +90,33 @@ public class GlobalExceptionHandler {
                 "MERCHANT_NOT_FOUND" // Código personalizado
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    // Error cuando se intenta duplicar un pago
+    @ExceptionHandler(DuplicatePaymentAttemptException.class)
+    public ResponseEntity<ApiError> handleDuplicatePayment(DuplicatePaymentAttemptException ex) {
+        ApiError error = new ApiError(
+                "https://api.payment.com/errors/duplicate-payment",
+                "Duplicate Payment Attempt",
+                HttpStatus.CONFLICT.value(),  // 409
+                ex.getMessage(),
+                "DUPLICATE_OPERATION"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    // Excepción cuando un link expira
+    @ExceptionHandler(PaymentLinkExpiredException.class)
+    public ResponseEntity<ApiError> handlePaymentLinkExpired(PaymentLinkExpiredException ex) {
+        ApiError error = new ApiError(
+                "https://api.payment.com/errors/payment-link-expired",
+                "Payment Link Expired",
+                HttpStatus.CONFLICT.value(), // 409 Conflict
+                ex.getMessage(),
+                "LINK_EXPIRED",
+                Map.of("expiresAt", ex.getExpiresAt())
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     // Error genérico (500) //

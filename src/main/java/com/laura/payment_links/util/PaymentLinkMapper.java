@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laura.payment_links.dto.request.CreatePaymentLinkRequest;
+import com.laura.payment_links.dto.response.PaymentAttemptResponse;
 import com.laura.payment_links.dto.response.PaymentLinkDetailsResponse;
 import com.laura.payment_links.dto.response.PaymentLinkResponse;
 import com.laura.payment_links.model.Merchant;
+import com.laura.payment_links.model.PaymentAttempt;
 import com.laura.payment_links.model.PaymentLink;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -38,6 +40,11 @@ public interface PaymentLinkMapper {
     @Mapping(target = "createdAt", expression = "java(java.time.Instant.now())")
     @Mapping(target = "metadata", expression = "java(convertMapToJson(request.getMetadata()))")
     PaymentLink fromCreateRequest(CreatePaymentLinkRequest request, @Context Merchant merchant);
+
+    //Convierte una entidad PaymentAttempt a su DTO de respuesta.
+    @Mapping(target = "paymentLinkId", source = "paymentLink.id")
+    PaymentAttemptResponse toAttemptResponse(PaymentAttempt attempt);
+
 
     // Métodos de ayuda
 

@@ -7,4 +7,8 @@ public class PaymentLinkNotFoundException extends RuntimeException {
     public PaymentLinkNotFoundException(UUID id) {
         super("PaymentLink con ID " + id + " no encontrado");
     }
+
+    public PaymentLinkNotFoundException(String reference) {
+        super("PaymentLink con referencia " + reference + " no encontrado");
+    }
 }

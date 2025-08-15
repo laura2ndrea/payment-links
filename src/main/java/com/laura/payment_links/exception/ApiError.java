@@ -13,10 +13,10 @@ public class ApiError {
     private int status;
     private String detail;
     private String code;
-    private Map<String, String[]> errors;
+    private Map<String, Object> errors;
 
     // Constructor para errores simples
-    public ApiError(String type, String title, int status, String detail, String code) {
+    public ApiError(String type, String title, int status, String detail, String code,  Map<String, Object> errors) {
         this.type = URI.create(type);
         this.title = title;
         this.status = status;
@@ -25,9 +25,8 @@ public class ApiError {
     }
 
     // Constructor para errores de validación
-    public ApiError(String type, String title, int status, String detail, String code, Map<String, String[]> errors) {
-        this(type, title, status, detail, code);
-        this.errors = errors;
+    public ApiError(String type, String title, int status, String detail, String code) {
+        this(type, title, status, detail, code, null);
     }
 }
 
