@@ -137,7 +137,7 @@ public class PaymentLinkService {
         return expiredCount;
     }
 
-    // === Métodos Auxiliares (Privados) === //
+    // Métodos auxiliaries //
 
     /**
      * Busca un link por ID (UUID) o referencia (PL-XXXX).
