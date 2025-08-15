@@ -1,4 +1,4 @@
-package com.laura.payment_links.service;
+package com.laura.payment_links.repository;
 
 import com.laura.payment_links.model.Merchant;
 import org.springframework.data.jpa.repository.JpaRepository;
