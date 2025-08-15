@@ -26,7 +26,7 @@ Importante: La aplicación actualmente tiene problemas de compilación en el map
 
 ## Arquitectura del proyecto 
 
-### 01. Entidades (/model)
+### 1. Entidades (/model)
 El sistema consta de 3 entidades principales y 2 clases enum que gestionan:
 
 - Merchants: quienes crean los enlaces
@@ -114,7 +114,7 @@ public class PaymentAttempt {
 
   - No puede haber dos intentos con el mismo payment_link_id + idempotency_key
 
-### 02. DTOs (/dto) 
+### 2. DTOs (/dto) 
 Se crearon DTO de entrada y salida para proteger la estructura interna de las entidades, controlar qué datos se exponen en la API, validar las solicitudes entrantes, optimizar las respuestas según cada caso de uso.
 
 Los DTO de entrada son los siguientes: 
@@ -179,7 +179,7 @@ public class PaymentAttemptResponse {
 }
 ```
 
-### 03. Repositorios (/repositories)
+### 3. Repositorios (/repositories)
 
 Los siguientes repositorios manejan la persistencia de datos para el sistema de Payment Links, utilizando Spring Data JPA. Cada uno proporciona consultas específicas para su entidad asociada.
 
@@ -216,7 +216,7 @@ Page<PaymentLink> search(UUID merchantId, PaymentLinkStatus status, Instant from
 int expireLinks(Instant now);  // Marca links vencidos como "EXPIRED"
 ```
 
-### 04. Servicios (/service)
+### 4. Servicios (/service)
 
 A continuación se detallan los servicios principales que componen el sistema de gestión de enlaces de pago:
 
@@ -277,9 +277,31 @@ Gestiona el ciclo de vida completo de los enlaces de pago.
     ```sh
     public PaymentLinkDetailsResponse getPaymentLinkDetails(UUID merchantId, String identifier)
     ```
-### 05. Controladores (/controller)
+### 5. Controladores (/controller)
 
-### 06. Manejo de errores (/exception)
+**AuthController**
 
-### 07. Seguridad (/security)
+Maneja el registro y autenticación de comercios. 
+
+- POST /payment-links/register → registra un nuevo comercio.
+
+- POST /payment-links/login → autentica un comercio y genera token JWT.
+
+**PaymentLinkController**
+
+Gestiona el ciclo de vida completo de los enlaces de pago.
+
+- POST /payment-links → crea un nuevo link de pago.
+
+- GET /payment-links → lista links con filtros (status, montos, fechas).
+
+- GET /payment-links/{identifier} → obtiene detalles de un link (por ID o referencia).
+
+- POST /payment-links/{id}/pay → procesa un pago (simulación con idempotencia).
+
+- POST /payment-links/{id}/cancel → cancela un link de pago.
+
+### 6. Manejo de errores (/exception)
+
+### 7. Seguridad (/security)
 
