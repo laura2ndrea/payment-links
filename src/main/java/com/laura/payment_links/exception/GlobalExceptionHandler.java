@@ -119,6 +119,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    // Excepción para avisar sobre email que ya existe
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
+        ApiError error = new ApiError(
+                "https://api.payment.com/errors/conflict",
+                "Conflict",
+                HttpStatus.CONFLICT.value(), // 409
+                ex.getMessage(),
+                "EMAIL_ALREADY_EXISTS"
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
     // Error genérico (500) //
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleInternalError(Exception ex) {
