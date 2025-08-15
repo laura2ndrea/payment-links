@@ -79,6 +79,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    // Error cuando no se consigue un Merchant
+    @ExceptionHandler(MerchantNotFoundException.class)
+    public ResponseEntity<ApiError> handleMerchantNotFound(MerchantNotFoundException ex) {
+        ApiError error = new ApiError(
+                "https://api.payment.com/errors/not_found",
+                "Not Found",
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                "MERCHANT_NOT_FOUND" // Código personalizado
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
     // Error genérico (500) //
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleInternalError(Exception ex) {
